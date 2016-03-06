@@ -40,21 +40,21 @@
 
     	buildOverlay: function(){
     		var outer = $('<div></div>').css({
-		        'display': 'table',
+		        'display':  'table',
 		        'position': 'absolute',
-		        'height': '100%',
-		        'width': '100%'
+		        'height':   '100%',
+		        'width':    '100%'
 		    });
 
 		    var middle = $('<div></div>').css({
-		        'display': 'table-cell',
+		        'display':        'table-cell',
 		        'vertical-align': 'middle'
 		    });
 
 		    var inner = $('<div></div>').css({
-		        'margin-left': 'auto',
+		        'margin-left':  'auto',
 		        'margin-right': 'auto',
-		        'width': '78px'
+		        'width':        '78px'
 		    });
 
 		    // PUT PATH TO IMAGE!!!!
@@ -79,27 +79,98 @@
 		            }).append(outer);
     	},
 
+    	setFirstPageLink: function(){
+    		var firstPage = this.options['primerPagina'];
 
-		init: function(){
-			var paginador = this, link;
-
-	        // Seteo links de primer y ultima pagina
-	        if (paginador.options['primerPagina']) {
+    		if (firstPage) {
+    			/*
 	            $('#firstPagLink')
 	                .click(function () {
-	                    paginador.cambiarPagina(paginador.options['primerPagina']);
+	                    paginador.cambiarPagina(firstPage);
 	                })
 	                .attr("href", "#!");
-	        }
+                */
+                $('#firstPagLink')
+	                .click($.proxy(this, cambiarPagina, firstPage))
+	                .attr("href", "#!");
 
-	        if (paginador.options['ultimaPagina']) {
-	            $('#lastPagLink')
-	                    .click(function () {
-	                        paginador.cambiarPagina(paginador.options['ultimaPagina']);
-	                    })
-	                    .attr("href", "#!");
 	        }
+    	},
 
+    	setLastPageLink: function(){
+    		var lastPage = this.options['ultimaPagina'];
+
+    		if (lastPage) {
+    	      $('#lastPagLink')
+	                .click($.proxy(this, cambiarPagina, lastPage))
+	                .attr("href", "#!");
+
+	        }
+    	},
+
+    	onChangeToPreviousPage: function(){
+    		var newPage   = this.currentPage - 1,
+				firstPage = this.options['primerPagina'];
+
+            if (newPage >= firstPage) {
+                this.cambiarPagina(newPage);
+            } else {
+                alert("Can´t move before first page");
+            }
+    	}
+
+    	setPrevPagLink: function(){
+    		$('#previousPagLink')
+                .click($.proxy(this, onChangeToPreviousPage));
+                .attr("href", "#!");
+    	},
+
+    	onChangeToNextPage: function(){
+    		var newPage  = this.currentPage + 1,
+    			lastPage = this.options['ultimaPagina'];
+
+    		if (nuevaPagina <= lastPage)
+                this.cambiarPagina(nuevaPagina);
+            else
+                alert("Can´t move beyond last page");
+    	},
+
+    	setNextPagLink: function(){
+    		$('#nextPagLink')
+                .click($.proxy(this, onChangeToNextPage))
+                .attr("href", "#!");	
+    	},
+
+    	createLink: function(i){
+    		return $('<a></a>')
+                    .text(i)
+                    .attr("href", "#!")
+                    .on(this.evtName, (function (j) {
+                        return function () {
+                            $(this).text(paginador.pages[j]);
+                        };
+                    })(i - 1));
+    	},
+
+    	createLinks: function(){
+    		for (var i = 1, c = this.options.cPaginas; i <= c; i++) {
+
+	            link = this.createLink(i);
+
+	            this.pages.push(i);
+
+	            link.appendTo(this.options['selectStr']).after(" ");
+	        }
+    	},
+
+
+		init: function(){
+			// Set special links	        
+			this.setFirstPageLink();
+	        this.setLastPageLink();
+	        this.setPrevPagLink();
+	        this.setNextPagLink();
+	        
 	        /* 
 	         * Si javascript no esta deshabilitado, saco los links obtenidos por 
 	         el servidor y los reemplazo por los mios
@@ -107,71 +178,32 @@
 	        this.linkContainer.empty();
 
 	        // Seteo links correspondientes a las paginas
-	        for (var i = 1, c = this.options.cPaginas; i <= c; i++) {
-
-	            link = $('<a></a>')
-	                    .text(i)
-	                    .attr("href", "#!")
-	                    .on(this.evtName, (function (j) {
-	                        return function () {
-	                            $(this).text(paginador.paginas[j]);
-	                        };
-	                    })(i - 1));
-
-
-	            this.paginas.push(i);
-
-	            link.appendTo(this.options['selectStr']).after(" ");
-	        }
-
+	        this.createLinks();
+	        
 	        // Seteo comportamiento del container
+	        /*
 	        this.linkContainer.on("click", "a", (function () {
 	            return function () {
 	                paginador.cambiarPagina($(this).text());
 	            };
 	        })());
+	        */
+	        this.linkContainer.on("click", "a", this, function(e, paginator){
+	        	paginator.cambiarPagina($(this).text());
+	        });
+
 
 	        this.overlay.hide();
-	        $(this.options['container'])
-	                .css('position', 'relative')
-	                .append(this.overlay);
+	        this.container
+                .css('position', 'relative')
+                .append(this.overlay);
 
-
-	        // Seteo los links de paginacion hacia adelante y hacia atras
-	        $('#previousPagLink')
-	                .click(function () {
-	                    var nuevaPagina = paginador.paginaActual - 1;
-
-	                    if (nuevaPagina >= paginador.options['primerPagina']) {
-	                        paginador.cambiarPagina(nuevaPagina);
-	                    } else {
-	                        alert("No puedo pasarme de la primer pagina");
-	                    }
-
-	                })
-	                .attr("href", "#!");
-
-	        $('#nextPagLink')
-	                .click(function () {
-	                    var nuevaPagina = paginador.paginaActual + 1;
-
-	                    if (nuevaPagina <= paginador.options['ultimaPagina'])
-	                        paginador.cambiarPagina(nuevaPagina);
-	                    else
-	                        alert("No puedo pasarme de la ultima pagina");
-
-	                })
-	                .attr("href", "#!");
 		},
 
 		// Habilita/Deshabilita los links de paginacion
-		deshabilitarLinksPaginacion: function () {
-		    this.deshabilitado = true;
-		},
+		deshabilitarLinksPaginacion: function () { this.disabled = true; },
 
-    	habilitarLinksPaginacion: function () {
-        	this.deshabilitado = false;
-    	},
+    	habilitarLinksPaginacion: function () {    this.disabled = false; },
 
 	    // Determina los nuevos numeros de paginas
 	    obtenerNuevasPaginas: function (nuevaPag) {
@@ -185,7 +217,7 @@
                 i = Math.round(begin);
 
 	        while (i < begin + nb_links && i <= this.options['ultimaPagina']) {
-	            this.paginas[j] = i;
+	            this.pages[j] = i;
 	            i++, j++;
 	        }
 
@@ -207,7 +239,7 @@
 	            paginador.obtenerNuevasPaginas(pagina);
 	            $(paginador.options['selectStr'] + ' a').trigger(paginador.evtName);
 	            // Cambio el numero de pagina
-	            paginador.paginaActual = pagina;
+	            paginador.currentPage = pagina;
 
 	            if (paginador.options['pageChangeSuccess'])
 	                paginador.options['pageChangeSuccess'].apply(paginador);
@@ -235,7 +267,7 @@
 
 	        var np = parseInt(nuevaPag, 10);
 
-	        if (this.paginaActual !== np && !this.deshabilitado) {
+	        if (this.currentPage !== np && !this.disabled) {
 
 	            this.deshabilitarLinksPaginacion();
 	            this.overlay.fadeIn();
