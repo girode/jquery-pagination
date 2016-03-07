@@ -1,12 +1,12 @@
 /* A ejecutar cuando se carga la pagina */
     $(document).ready(function(){
         var paginador = new Paginador({
-            'cPaginas':      5,
-            'container':     'div.sf_admin_list',
-            'selectStr':     '#paginationLinks', 
-            'primerPagina':  <?php echo $pager->getFirstPage(); ?>,
-            'ultimaPagina':  <?php echo $pager->getLastPage();  ?>,
-            'url':           '<?php echo url_for("pase_interno/getPageAjax"); ?>',
+            // 'imgSource': '<?php echo image_tag('/v2/images/matriculacion/paginatorLoader.gif') ?>',
+            'containerSelector':     'div.sf_admin_list',
+            'linkContainerSelector':     '#paginationLinks', 
+            // 'firstPage':  <?php echo $pager->getFirstPage(); ?>,
+            // 'lastPage':  <?php echo $pager->getLastPage();  ?>,
+            // 'url':           '<?php echo url_for("pase_interno/getPageAjax") . "?estado= echo $estado &pag=" ?>',
             'beforePageChange': function () {
                 $('ul.sf_admin_td_actions > li a').click(false);
             },
@@ -42,6 +42,8 @@
 
             }
         });
+
+        
 
         // Solo para debug: comentar
         window.p = paginador;

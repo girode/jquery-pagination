@@ -16,71 +16,76 @@
 
     // Create the defaults once
     var pluginName = "defaultPluginName",
-            defaults = {
-                propertyName: "value"
-            };
+        defaults = {
+            beforePageChange: function (){},
+            cPages:      5,
+            currentPage: 1,
+            disabled: false,
+            evtName: "pagination",
+            firstPage: 1,
+            lastPage: 1,
+            imgSource: 'paginatorLoader.gif',
+            linkContainerSelector: '#paginacion',
+            pageChangeFail: function (){},
+            pageChangeSuccess: function (){}
+        };
 
 
     function Paginator(options){
-    	this.pages = [];
-		this.disabled = false;
-		this.currentPage = 1;
-		this.evtName = "pagination";
-		this.options = options;
-		this.container = $(this.options['container']);
-		this.linkContainer = $(this.options['selectStr']) || $('#paginacion');
-		this.data = {}; // Persist data in between page changes 
-		this.overlay = this.buildOverlay();
-
-		this.init();
+        this.options = options;
+        
+        this.container = $(this.options['containerSelector']);
+        this.data = {}; // Persist data in between page changes 
+        this.linkContainer = $(this.options['linkContainerSelector']);
+        this.pages = [];
+        
+        this.init();
     }
-
 
     Paginator.prototype = {
 
     	buildOverlay: function(){
-    		var outer = $('<div></div>').css({
-		        'display':  'table',
-		        'position': 'absolute',
-		        'height':   '100%',
-		        'width':    '100%'
-		    });
+            var outer = $('<div></div>').css({
+                'display':  'table',
+                'position': 'absolute',
+                'height':   '100%',
+                'width':    '100%'
+            });
 
-		    var middle = $('<div></div>').css({
-		        'display':        'table-cell',
-		        'vertical-align': 'middle'
-		    });
+            var middle = $('<div></div>').css({
+                'display':        'table-cell',
+                'vertical-align': 'middle'
+            });
 
-		    var inner = $('<div></div>').css({
-		        'margin-left':  'auto',
-		        'margin-right': 'auto',
-		        'width':        '78px'
-		    });
+            var inner = $('<div></div>').css({
+                'margin-left':  'auto',
+                'margin-right': 'auto',
+                'width':        '78px'
+            });
 
-		    // PUT PATH TO IMAGE!!!!
-		    var img = '';
-		    // '<?php echo image_tag('/v2/images/matriculacion/paginatorLoader.gif') ?>';
-		    var texto = '<br /><h2 style="color:#FFFFFF;">Cargando Página...</h2>';
+            var img = $('<img>').attr("src", this.imgSource);
+            var texto = '<br /><h2 style="color:#FFFFFF;">Cargando Página...</h2>';
 
-		    inner.append(img, texto);
-		    middle.append(inner);
-		    outer.append(middle);
+            inner.append(img, texto);
+            middle.append(inner);
+            outer.append(middle);
 
-		    return $('<div></div>')
-		            .addClass("overlay")
-		            .css({
-		                'position': 'absolute',
-		                'top': '0',
-		                'left': '0',
-		                'width': '100%',
-		                'height': '100%',
-		                'z-index': '10',
-		                'background-color': 'rgba(0,0,0,0.5)' /*dim the background*/
-		            }).append(outer);
+            return $('<div></div>')
+                    .addClass("overlay")
+                    .css({
+                        'position': 'absolute',
+                        'top': '0',
+                        'left': '0',
+                        'width': '100%',
+                        'height': '100%',
+                        'z-index': '10',
+                        'background-color': 'rgba(0,0,0,0.5)' /*dim the background*/
+                    })
+                    .append(outer);
     	},
 
     	setFirstPageLink: function(){
-    		var firstPage = this.options['primerPagina'];
+    		var firstPage = this.options['firstPage'];
 
     		if (firstPage) {
     			/*
@@ -98,7 +103,7 @@
     	},
 
     	setLastPageLink: function(){
-            var lastPage = this.options['ultimaPagina'];
+            var lastPage = this.options['lastPage '];
 
             if (lastPage) {
                 $('#lastPagLink')
@@ -109,7 +114,7 @@
 
     	onChangeToPreviousPage: function(){
             var newPage   = this.currentPage - 1,
-                            firstPage = this.options['primerPagina'];
+                            firstPage = this.options['firstPage'];
 
             if (newPage >= firstPage) {
                 this.cambiarPagina(newPage);
@@ -126,7 +131,7 @@
 
     	onChangeToNextPage: function(){
             var newPage  = this.currentPage + 1,
-                lastPage = this.options['ultimaPagina'];
+                lastPage = this.options['lastPage'];
 
             if (newPage <= lastPage)
                 this.cambiarPagina(newPage);
@@ -160,70 +165,69 @@
     	},
 
     	createLinks: function(){
-    		for (var i = 1, c = this.options.cPaginas; i <= c; i++) {
-
-	            link = this.createLink(i);
-
-	            this.pages.push(i);
-
-	            link.appendTo(this.options['selectStr']).after(" ");
-	        }
+            for (var i = 1, c = this.options.cPages, link; i <= c; i++) {
+                link = this.createLink(i);
+                link.appendTo(this.linkContainer).after(" ");
+                this.pages.push(i);
+            }
     	},
 
+        init: function(){
+            // Set special links	        
+            this.setFirstPageLink();
+            this.setLastPageLink();
+            this.setPrevPagLink();
+            this.setNextPagLink();
 
-		init: function(){
-			// Set special links	        
-			this.setFirstPageLink();
-	        this.setLastPageLink();
-	        this.setPrevPagLink();
-	        this.setNextPagLink();
-	        
-	        /* 
-	         * Si javascript no esta deshabilitado, saco los links obtenidos por 
-	         el servidor y los reemplazo por los mios
-	         */
-	        this.linkContainer.empty();
-
-	        // Seteo links correspondientes a las paginas
-	        this.createLinks();
-	        
-	        // Seteo comportamiento del container
-	        /*
-	        this.linkContainer.on("click", "a", (function () {
-	            return function () {
-	                paginador.cambiarPagina($(this).text());
-	            };
-	        })());
-	        */
-	        this.linkContainer.on("click", "a", this, function(e, paginator){
-	        	paginator.cambiarPagina($(this).text());
-	        });
+            this.overlay = this.buildOverlay();
 
 
-	        this.overlay.hide();
-	        this.container
+            /* 
+             * Si javascript no esta deshabilitado, saco los links obtenidos por 
+             el servidor y los reemplazo por los mios
+             */
+            this.linkContainer.empty();
+
+            // Seteo links correspondientes a las paginas
+            this.createLinks();
+
+            // Seteo comportamiento del container
+            /*
+            this.linkContainer.on("click", "a", (function () {
+                return function () {
+                    paginador.cambiarPagina($(this).text());
+                };
+            })());
+            */
+            this.linkContainer.on("click", "a", this, function(e, paginator){
+                paginator.cambiarPagina($(this).text());
+            });
+
+
+            this.overlay.hide();
+            this.container
                 .css('position', 'relative')
                 .append(this.overlay);
 
-		},
+        },
 
-		// Habilita/Deshabilita los links de paginacion
-		deshabilitarLinksPaginacion: function () { this.disabled = true; },
+        // Habilita/Deshabilita los links de paginacion
+        deshabilitarLinksPaginacion: function () { this.disabled = true; },
 
     	habilitarLinksPaginacion: function () {    this.disabled = false; },
 
-	    // Determina los nuevos numeros de paginas
-	    obtenerNuevasPaginas: function (nuevaPag) {
+        // Determina los nuevos numeros de paginas
+        obtenerNuevasPaginas: function (nuevaPag) {
 
 	        var
-                nb_links = this.options.cPaginas, j = 0,
+                nb_links = this.options.cPages, j = 0,
                 tmp = nuevaPag - Math.floor(nb_links / 2),
-                check = this.options['ultimaPagina'] - nb_links + 1,
+                check = this.options['lastPage'] - nb_links + 1,
                 limit = check > 0 ? check : 1,
                 begin = tmp > 0 ? (tmp > limit ? limit : tmp) : 1,
                 i = Math.round(begin);
 
-	        while (i < begin + nb_links && i <= this.options['ultimaPagina']) {
+	        while (i < begin + nb_links && i <= this.options['lastPage']) {
 	            this.pages[j] = i;
 	            i++, j++;
 	        }
@@ -237,14 +241,14 @@
 	            context: $('tbody#page'),
 	            type: 'GET',
 	            dataType: "html",
-	            url: paginador.options['url'] + '?estado=<?php echo $estado ?>&pag=' + pagina
+	            url: paginador.options['url'] + pagina
 	        }).done(function (data, textStatus, jqXHR) {
 	            // Reemplaza el contenido de la pagina
 	            this.html(data);
 	            // Calcula los nuevos numeros de pagina y le avisa a las paginas 
 	            // que recarguen su numero de pagina
 	            paginador.obtenerNuevasPaginas(pagina);
-	            $(paginador.options['selectStr'] + ' a').trigger(paginador.evtName);
+	            $(paginador.options['linkContainerSelector'] + ' a').trigger(paginador.evtName);
 	            // Cambio el numero de pagina
 	            paginador.currentPage = pagina;
 
@@ -269,8 +273,7 @@
 
 	    },
 
-
-	    cambiarPagina: function (nuevaPag) {
+        cambiarPagina: function (nuevaPag) {
 
 	        var np = parseInt(nuevaPag, 10);
 
@@ -289,10 +292,7 @@
 	        }
 	    }
 
-
     };
-
-
 
     // The actual plugin constructor
     function Plugin(element, options) {
@@ -312,8 +312,7 @@
     $.extend(Plugin.prototype, {
         init: function () {
 
-        	var p = new Paginator();
-
+            var p = new Paginator(this.settings);
 
             // Place initialization logic here
             // You already have access to the DOM element and
