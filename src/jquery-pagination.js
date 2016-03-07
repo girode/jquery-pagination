@@ -98,39 +98,38 @@
     	},
 
     	setLastPageLink: function(){
-    		var lastPage = this.options['ultimaPagina'];
+            var lastPage = this.options['ultimaPagina'];
 
-    		if (lastPage) {
-    	      $('#lastPagLink')
-	                .click($.proxy(this, cambiarPagina, lastPage))
-	                .attr("href", "#!");
-
-	        }
+            if (lastPage) {
+                $('#lastPagLink')
+                    .click($.proxy(this, cambiarPagina, lastPage))
+                    .attr("href", "#!");
+            }
     	},
 
     	onChangeToPreviousPage: function(){
-    		var newPage   = this.currentPage - 1,
-				firstPage = this.options['primerPagina'];
+            var newPage   = this.currentPage - 1,
+                            firstPage = this.options['primerPagina'];
 
             if (newPage >= firstPage) {
                 this.cambiarPagina(newPage);
             } else {
                 alert("Can´t move before first page");
             }
-    	}
+    	},
 
     	setPrevPagLink: function(){
     		$('#previousPagLink')
-                .click($.proxy(this, onChangeToPreviousPage));
+                .click($.proxy(this, onChangeToPreviousPage))
                 .attr("href", "#!");
     	},
 
     	onChangeToNextPage: function(){
-    		var newPage  = this.currentPage + 1,
-    			lastPage = this.options['ultimaPagina'];
+            var newPage  = this.currentPage + 1,
+                lastPage = this.options['ultimaPagina'];
 
-    		if (nuevaPagina <= lastPage)
-                this.cambiarPagina(nuevaPagina);
+            if (newPage <= lastPage)
+                this.cambiarPagina(newPage);
             else
                 alert("Can´t move beyond last page");
     	},
@@ -142,14 +141,16 @@
     	},
 
     	createLink: function(i){
-    		return $('<a></a>')
-                    .text(i)
-                    .attr("href", "#!")
-                    .on(this.evtName, (function (j) {
-                        return function () {
-                            $(this).text(paginador.pages[j]);
-                        };
-                    })(i - 1));
+            var paginador = this;
+            
+            return $('<a></a>')
+                .text(i)
+                .attr("href", "#!")
+                .on(this.evtName, (function (j) {
+                    return function () {
+                        $(this).text(paginador.pages[j]);
+                    };
+                })(i - 1));
     	},
 
     	createLinks: function(){
