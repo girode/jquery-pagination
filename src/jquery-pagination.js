@@ -141,16 +141,22 @@
     	},
 
     	createLink: function(i){
-            var paginador = this;
-            
-            return $('<a></a>')
+            return $('<a>')
                 .text(i)
                 .attr("href", "#!")
-                .on(this.evtName, (function (j) {
+                .on(this.evtName, this, function (e, paginador){
+                    $(this).text(paginador.pages[i-1]);
+                });
+        
+        /*
+         * (function (j) {
                     return function () {
                         $(this).text(paginador.pages[j]);
                     };
-                })(i - 1));
+                })(i - 1)
+         * 
+         */
+        
     	},
 
     	createLinks: function(){
