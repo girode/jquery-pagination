@@ -6,6 +6,56 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript" src="jquery-1.12.1.min.js"></script>
         <script type="text/javascript" src="jquery-pagination.js"></script>
+        <script type="text/javascript">
+            $(function (){
+                $("table").pagiNation({
+                    // 'imgSource': '<?php echo image_tag('/v2/images/matriculacion/paginatorLoader.gif') ?>',
+                    // 'containerSelector':     'div.sf_admin_list',
+                    'linkContainerSelector':     '#paginationLinks', 
+                    // 'firstPage':  <?php echo $pager->getFirstPage(); ?>,
+                    // 'lastPage':  <?php echo $pager->getLastPage();  ?>,
+                    // 'url':           '<?php echo url_for("pase_interno/getPageAjax") . "?estado= echo $estado &pag=" ?>',
+                    /*
+                    'beforePageChange': function () {
+                        $('ul.sf_admin_td_actions > li a').click(false);
+                    },
+                    'pageChangeFail': function () {
+                        $('ul.sf_admin_td_actions > li a').off('click');
+                    },
+                    'pageChangeSuccess': function () {
+                        // Tengo que restaurar los valores de los check
+                        var datosPaginaActual = this.data['personasSeleccionadas'][this.paginaActual];
+
+                        if(datosPaginaActual) {
+                            for(var i = 0, c = datosPaginaActual.length ; i<c ; i++){
+                                $('#page input[value="'+ datosPaginaActual[i] +'"][type="checkbox"]').prop('checked', true);  
+                            }
+                        }
+
+                        // Restauro el valor del check maestro
+                        var m = paginador.data['checkMaestro'][this.paginaActual];
+                        if(m) {
+                            $('#sf_admin_list_batch_checkbox').prop('checked', true);
+                        } else {
+                            $('#sf_admin_list_batch_checkbox').prop('checked', false);
+                        }
+
+
+                        var pag        = this.paginaActual,
+                            texto      = $('div.sf_admin_pagination')[0].nextSibling.nodeValue,
+                            nuevoTexto = texto.replace(/\d+/g, function(allText, index){
+                                    return (index === 74)? pag: allText;  
+                            });
+
+                        $('div.sf_admin_pagination')[0].nextSibling.nodeValue = nuevoTexto;    
+
+                    }
+                    */
+                   
+                });
+                
+            });
+        </script>
     </head>
     <body>
         <div>

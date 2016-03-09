@@ -15,7 +15,7 @@
     // minified (especially when both are regularly referenced in your plugin).
 
     // Create the defaults once
-    var pluginName = "defaultPluginName",
+    var pluginName = "pagiNation",
         defaults = {
             beforePageChange: function (){},
             cPages:      5,
@@ -43,6 +43,25 @@
     }
 
     Paginator.prototype = {
+
+        cambiarPagina: function (nuevaPag) {
+
+	        var np = parseInt(nuevaPag, 10);
+
+	        if (this.currentPage !== np && !this.disabled) {
+
+	            this.deshabilitarLinksPaginacion();
+	            this.overlay.fadeIn();
+
+	            if (this.options['beforePageChange'])
+	                this.options['beforePageChange'].apply(this);
+
+	            this.fetchRemotePage(np);
+
+	        } else {
+	            alert("No necesito recargar la pagina");
+	        }
+	    },
 
     	buildOverlay: function(){
             var outer = $('<div></div>').css({
@@ -85,21 +104,21 @@
     	},
 
     	setFirstPageLink: function(){
-    		var firstPage = this.options['firstPage'];
+            var firstPage = this.options['firstPage'];
 
-    		if (firstPage) {
-    			/*
-	            $('#firstPagLink')
-	                .click(function () {
-	                    paginador.cambiarPagina(firstPage);
-	                })
-	                .attr("href", "#!");
-                */
+            if (firstPage) {
+                    /*
                 $('#firstPagLink')
-	                .click($.proxy(this, cambiarPagina, firstPage))
-	                .attr("href", "#!");
+                    .click(function () {
+                        paginador.cambiarPagina(firstPage);
+                    })
+                    .attr("href", "#!");
+            */
+                $('#firstPagLink')
+                    .click($.proxy(this, "cambiarPagina", firstPage))
+                    .attr("href", "#!");
 
-	        }
+            }
     	},
 
     	setLastPageLink: function(){
@@ -107,7 +126,7 @@
 
             if (lastPage) {
                 $('#lastPagLink')
-                    .click($.proxy(this, cambiarPagina, lastPage))
+                    .click($.proxy(this, "cambiarPagina", lastPage))
                     .attr("href", "#!");
             }
     	},
@@ -124,8 +143,8 @@
     	},
 
     	setPrevPagLink: function(){
-    		$('#previousPagLink')
-                .click($.proxy(this, onChangeToPreviousPage))
+            $('#previousPagLink')
+                .click($.proxy(this, "onChangeToPreviousPage"))
                 .attr("href", "#!");
     	},
 
@@ -141,7 +160,7 @@
 
     	setNextPagLink: function(){
     		$('#nextPagLink')
-                .click($.proxy(this, onChangeToNextPage))
+                .click($.proxy(this, "onChangeToNextPage"))
                 .attr("href", "#!");	
     	},
 
@@ -271,26 +290,8 @@
 	            paginador.overlay.fadeOut();
 	        });
 
-	    },
-
-        cambiarPagina: function (nuevaPag) {
-
-	        var np = parseInt(nuevaPag, 10);
-
-	        if (this.currentPage !== np && !this.disabled) {
-
-	            this.deshabilitarLinksPaginacion();
-	            this.overlay.fadeIn();
-
-	            if (this.options['beforePageChange'])
-	                this.options['beforePageChange'].apply(this);
-
-	            this.fetchRemotePage(np);
-
-	        } else {
-	            alert("No necesito recargar la pagina");
-	        }
 	    }
+
 
     };
 
@@ -311,22 +312,9 @@
     // Avoid Plugin.prototype conflicts
     $.extend(Plugin.prototype, {
         init: function () {
-
             var p = new Paginator(this.settings);
-
-            // Place initialization logic here
-            // You already have access to the DOM element and
-            // the options via the instance, e.g. this.element
-            // and this.settings
-            // you can add more functions like the one below and
-            // call them like the example below
-            this.yourOtherFunction("jQuery Boilerplate");
-        },
-        yourOtherFunction: function (text) {
-
-            // some logic
-            $(this.element).text(text);
         }
+        
     });
 
     // A really lightweight plugin wrapper around the constructor,
