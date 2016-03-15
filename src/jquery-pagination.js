@@ -311,10 +311,16 @@
 
     // Avoid Plugin.prototype conflicts
     $.extend(Plugin.prototype, {
+        p: null,
         init: function () {
-            var p = new Paginator(this.settings);
+            this.p = new Paginator(this.settings);
+        },
+        getData: function(){
+            return this.p.data;
+        },
+        getCurrentPage: function (){
+            return this.p.currentPage;
         }
-        
     });
 
     // A really lightweight plugin wrapper around the constructor,
@@ -322,8 +328,7 @@
     $.fn[ pluginName ] = function (options) {
         return this.each(function () {
             if (!$.data(this, "plugin_" + pluginName)) {
-                $.data(this, "plugin_" +
-                        pluginName, new Plugin(this, options));
+                $.data(this, "plugin_" + pluginName, new Plugin(this, options));
             }
         });
     };

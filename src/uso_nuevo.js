@@ -1,63 +1,64 @@
-/* A ejecutar cuando se carga la pagina */
-    $(document).ready(function(){
-        var paginador = new Paginador({
-            // 'imgSource': '<?php echo image_tag('/v2/images/matriculacion/paginatorLoader.gif') ?>',
-            'containerSelector':     'div.sf_admin_list',
-            'linkContainerSelector':     '#paginationLinks', 
-            // 'firstPage':  <?php echo $pager->getFirstPage(); ?>,
-            // 'lastPage':  <?php echo $pager->getLastPage();  ?>,
-            // 'url':           '<?php echo url_for("pase_interno/getPageAjax") . "?estado= echo $estado &pag=" ?>',
-            'beforePageChange': function () {
-                $('ul.sf_admin_td_actions > li a').click(false);
-            },
-            'pageChangeFail': function () {
-                $('ul.sf_admin_td_actions > li a').off('click');
-            },
-            'pageChangeSuccess': function () {
-                // Tengo que restaurar los valores de los check
-                var datosPaginaActual = this.data['personasSeleccionadas'][this.paginaActual];
+$(function () {
+    $pagiNation = $("table").pagiNation({
+        // 'imgSource': '<?php echo image_tag('/v2/images/matriculacion/paginatorLoader.gif') ?>',
+        // 'containerSelector':     'div.sf_admin_list',
+        'linkContainerSelector': '#paginationLinks',
+        // 'firstPage':  <?php echo $pager->getFirstPage(); ?>,
+        // 'lastPage':  <?php echo $pager->getLastPage();  ?>,
+        // 'url':           '<?php echo url_for("pase_interno/getPageAjax") . "?estado= echo $estado &pag=" ?>',
 
-                if(datosPaginaActual) {
-                    for(var i = 0, c = datosPaginaActual.length ; i<c ; i++){
-                        $('#page input[value="'+ datosPaginaActual[i] +'"][type="checkbox"]').prop('checked', true);  
-                    }
+        'beforePageChange': function () {
+            $('ul.sf_admin_td_actions > li a').click(false);
+        },
+        'pageChangeFail': function () {
+            $('ul.sf_admin_td_actions > li a').off('click');
+        },
+        'pageChangeSuccess': function () {
+            // Tengo que restaurar los valores de los check
+            var datosPaginaActual = this.data['personasSeleccionadas'][this.paginaActual];
+
+            if (datosPaginaActual) {
+                for (var i = 0, c = datosPaginaActual.length; i < c; i++) {
+                    $('#page input[value="' + datosPaginaActual[i] + '"][type="checkbox"]').prop('checked', true);
                 }
+            }
 
-                // Restauro el valor del check maestro
-                var m = paginador.data['checkMaestro'][this.paginaActual];
-                if(m) {
-                    $('#sf_admin_list_batch_checkbox').prop('checked', true);
-                } else {
-                    $('#sf_admin_list_batch_checkbox').prop('checked', false);
-                }
+            // Restauro el valor del check maestro
+            var m = $paginatorData['checkMaestro'][this.paginaActual];
+            if (m) {
+                $('#sf_admin_list_batch_checkbox').prop('checked', true);
+            } else {
+                $('#sf_admin_list_batch_checkbox').prop('checked', false);
+            }
 
 
-                var pag        = this.paginaActual,
-                    texto      = $('div.sf_admin_pagination')[0].nextSibling.nodeValue,
-                    nuevoTexto = texto.replace(/\d+/g, function(allText, index){
-                            return (index === 74)? pag: allText;  
+            var pag = this.paginaActual,
+                    texto = $('div.sf_admin_pagination')[0].nextSibling.nodeValue,
+                    nuevoTexto = texto.replace(/\d+/g, function (allText, index) {
+                        return (index === 74) ? pag : allText;
                     });
 
-                $('div.sf_admin_pagination')[0].nextSibling.nodeValue = nuevoTexto;    
+            $('div.sf_admin_pagination')[0].nextSibling.nodeValue = nuevoTexto;
 
-            }
-        });
+        }
 
+
+    });
+    
+    var $paginatorData = $pagiNation.getData();
         
+    $('form input:checkbox').prop('checked', false);
+        $paginatorData['personasSeleccionadas'] = {};
+        $paginatorData['checkMaestro'] = [];
+        $paginatorData['checkMaestro'][0] = 'nada';
 
-        // Solo para debug: comentar
-        window.p = paginador;
-
-        $('form input:checkbox').prop('checked', false);
-        paginador.data['personasSeleccionadas'] = {};
-        paginador.data['checkMaestro'] = [];
-        paginador.data['checkMaestro'][0] = 'nada';
-
+        /*
         for(var i=<?php echo $pager->getFirstPage(); ?>;
             i<=<?php echo $pager->getLastPage();  ?>;
             i++) {
-            paginador.data['checkMaestro'][i] = false;
+            $paginatorData['checkMaestro'][i] = false;
         }
+        */
 
         /*    
          *  Handler de los checkbox "normales":  
@@ -67,24 +68,24 @@
 
             var value = $(this).val(), index;
 
-            if(!paginador.data['personasSeleccionadas'][paginador.paginaActual]){
-                paginador.data['personasSeleccionadas'][paginador.paginaActual] = [];
+            if(!$paginatorData['personasSeleccionadas'][$pagiNation.getCurrentPage()]){
+                $paginatorData['personasSeleccionadas'][$pagiNation.getCurrentPage()] = [];
                 index = -1;
             } else {
-                index = $.inArray(value, paginador.data['personasSeleccionadas'][paginador.paginaActual]);
+                index = $.inArray(value, $paginatorData['personasSeleccionadas'][$pagiNation.getCurrentPage()]);
             }   
 
             // Si tildo, agrego elemento
             if(this.checked){
                 // Si no esta, lo agrego
                 if (!(index > -1)) {
-                    paginador.data['personasSeleccionadas'][paginador.paginaActual].push(value);
+                    $paginatorData['personasSeleccionadas'][$pagiNation.getCurrentPage()].push(value);
                 }
             // Si destildo, quito elemento
             } else {
                 // Si lo encuentra, lo saco
                 if (index > -1) {
-                    paginador.data['personasSeleccionadas'][paginador.paginaActual].splice(index, 1);
+                    $paginatorData['personasSeleccionadas'][$pagiNation.getCurrentPage()].splice(index, 1);
                 }
             }    
 
@@ -107,7 +108,7 @@
             $("form input[type=hidden]").remove("[name^='ids_seleccionados']");
 
             // Tomo las personas del paginador y hago un poco de validacion
-            var personas = paginador.data['personasSeleccionadas'];
+            var personas = $paginatorData['personasSeleccionadas'];
 
             for(var pagina in personas){
                 for(var i = 0, c = personas[pagina].length; i<c; i++){
@@ -153,12 +154,12 @@
             $('#page input[type="checkbox"]').prop('checked', chequeado).change(); 
 
             if(chequeado) {
-                paginador.data['checkMaestro'][paginador.paginaActual] = true;
+                $paginatorData['checkMaestro'][$pagiNation.getCurrentPage()] = true;
                 if($('#cancel_all_div').is(':hidden'))
                     $('#select_all_div').show();
             }
             else {
-                paginador.data['checkMaestro'][paginador.paginaActual] = false;
+                $paginatorData['checkMaestro'][$pagiNation.getCurrentPage()] = false;
                 if($('#select_all_div').is(':visible'))
                     $('#cancel_all_div').hide();
             }
@@ -189,18 +190,20 @@
                     data: { estado: "<?php echo $estado; ?>" },
                     dataType: 'json'
                 }).done(function(msj){
-                    paginador.data['personasSeleccionadas'] = msj;
+                    $paginatorData['personasSeleccionadas'] = msj;
                     $('#select_all_div').hide();
                     $('#cancel_all_div').show();
                     // Marcar todos los check de la pagina actual graficamente
                     $("input[type='checkbox']:not([id='sf_admin_list_batch_checkbox'])").prop('checked', true);
 
                     // Tambien tengo q marcar todos los master checkbox 
+                    /*
                     for(var i=<?php echo $pager->getFirstPage(); ?>;
                         i<=<?php echo $pager->getLastPage();  ?>;
                         i++) {
-                        paginador.data['checkMaestro'][i] = true;
+                        $paginatorData['checkMaestro'][i] = true;
                     }
+                    */
 
 
                 }).fail(function( jqXHR, textStatus, errorThrown ){
@@ -214,14 +217,16 @@
 
         // Cancelar seleccion de todas las paginas
         $('#cancel_all_div > p > a').click(function(){
-            paginador.data['personasSeleccionadas'] = {};
+            $paginatorData['personasSeleccionadas'] = {};
 
+            /*
             for(var i=<?php echo $pager->getFirstPage(); ?>;
                 i<=<?php echo $pager->getLastPage();  ?>;
                 i++) 
             {
-                paginador.data['checkMaestro'][i] = false;
+                $paginatorData['checkMaestro'][i] = false;
             }
+            */
 
             // Desmarco todos los check
             $("input[type='checkbox']").prop('checked', false);
@@ -229,6 +234,8 @@
             $('#cancel_all_div').hide();
             return false;
         });
+    
+    
 
+});
 
-    }); // FIN
