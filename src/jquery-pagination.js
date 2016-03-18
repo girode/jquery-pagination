@@ -22,6 +22,7 @@
             evtName: "pagination",
             firstPage: 1,
             lastPage: 1,
+            cPages: 5,
             imgSource: 'paginatorLoader.gif',
             linkContainerSelector: '#paginacion',
             pageChangeFail: function (){},
@@ -37,7 +38,9 @@
         this.linkContainer = $(this.options['linkContainerSelector']);
         this.currentPage = 1;
         this.pages = [];
-        this.cPages = this.options['lastPage'] - this.options['firstPage'] + 1;
+        
+        var allPages = this.options['lastPage'] - this.options['firstPage'] + 1;
+        this.cPages = (this.options['cPages'] === "all")? allPages: this.options['cPages'];
         
         this.init();
     }
