@@ -18,8 +18,6 @@
     var pluginName = "pagiNation",
         defaults = {
             beforePageChange: function (){},
-            cPages:      5,
-            currentPage: 1,
             disabled: false,
             evtName: "pagination",
             firstPage: 1,
@@ -37,7 +35,9 @@
         this.container = $(this.options['containerSelector']);
         this.data = {}; // Persist data in between page changes 
         this.linkContainer = $(this.options['linkContainerSelector']);
+        this.currentPage = 1;
         this.pages = [];
+        this.cPages = this.options['lastPage'] - this.options['firstPage'] + 1;
         
         this.init();
     }
@@ -105,15 +105,8 @@
 
     	setFirstPageLink: function(){
             var firstPage = this.options['firstPage'];
-
+            
             if (firstPage) {
-                    /*
-                $('#firstPagLink')
-                    .click(function () {
-                        paginador.cambiarPagina(firstPage);
-                    })
-                    .attr("href", "#!");
-            */
                 $('#firstPagLink')
                     .click($.proxy(this, "cambiarPagina", firstPage))
                     .attr("href", "#!");
@@ -164,27 +157,20 @@
                 .attr("href", "#!");	
     	},
 
+        // Esta saltando error aca, CORREGIR DESPUES
     	createLink: function(i){
+            
             return $('<a>')
                 .text(i)
                 .attr("href", "#!")
-                .on(this.evtName, this, function (e, paginador){
-                    $(this).text(paginador.pages[i-1]);
+                .on(this.options.evtName, null, this, function (e){
+                    $(this).text(e.data.pages[i-1]);
                 });
-        
-        /*
-         * (function (j) {
-                    return function () {
-                        $(this).text(paginador.pages[j]);
-                    };
-                })(i - 1)
-         * 
-         */
         
     	},
 
     	createLinks: function(){
-            for (var i = 1, c = this.options.cPages, link; i <= c; i++) {
+            for (var i = 1, c = this.cPages, link; i <= c; i++) {
                 link = this.createLink(i);
                 link.appendTo(this.linkContainer).after(" ");
                 this.pages.push(i);
@@ -192,7 +178,7 @@
     	},
 
         init: function(){
-            // Set special links	        
+            // Set special links
             this.setFirstPageLink();
             this.setLastPageLink();
             this.setPrevPagLink();
@@ -211,15 +197,8 @@
             this.createLinks();
 
             // Seteo comportamiento del container
-            /*
-            this.linkContainer.on("click", "a", (function () {
-                return function () {
-                    paginador.cambiarPagina($(this).text());
-                };
-            })());
-            */
-            this.linkContainer.on("click", "a", this, function(e, paginator){
-                paginator.cambiarPagina($(this).text());
+            this.linkContainer.on("click", "a", this, function(e){
+                e.data.cambiarPagina($(this).text());
             });
 
 
@@ -239,7 +218,7 @@
         obtenerNuevasPaginas: function (nuevaPag) {
 
 	        var
-                nb_links = this.options.cPages, j = 0,
+                nb_links = this.cPages, j = 0,
                 tmp = nuevaPag - Math.floor(nb_links / 2),
                 check = this.options['lastPage'] - nb_links + 1,
                 limit = check > 0 ? check : 1,
@@ -267,7 +246,10 @@
 	            // Calcula los nuevos numeros de pagina y le avisa a las paginas 
 	            // que recarguen su numero de pagina
 	            paginador.obtenerNuevasPaginas(pagina);
-	            $(paginador.options['linkContainerSelector'] + ' a').trigger(paginador.evtName);
+
+	            $(paginador.options['linkContainerSelector'] + ' a')
+                            .trigger(paginador.options['evtName']);
+                    
 	            // Cambio el numero de pagina
 	            paginador.currentPage = pagina;
 
@@ -326,11 +308,21 @@
     // A really lightweight plugin wrapper around the constructor,
     // preventing against multiple instantiations
     $.fn[ pluginName ] = function (options) {
-        return this.each(function () {
-            if (!$.data(this, "plugin_" + pluginName)) {
-                $.data(this, "plugin_" + pluginName, new Plugin(this, options));
-            }
-        });
+        var plug = null, methodName = "";
+        
+        if(typeof options === 'object'){
+            return this.each(function () {
+                if (!$.data(this, "plugin_" + pluginName)) {
+                    $.data(this, "plugin_" + pluginName, new Plugin(this, options));
+                }
+            });
+        } else if(typeof options === 'string'){
+            methodName = options;
+            plug = $.data(this[0], "plugin_" + pluginName);
+            return plug[methodName]();
+        }    
+        
+        
     };
 
 })(jQuery, window, document);
